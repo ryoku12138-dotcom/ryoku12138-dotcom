@@ -1,0 +1,35 @@
+name: Daily Test
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # UTC 00:00，每天运行
+  workflow_dispatch:       # 手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run daily test and generate logs
+        run: |
+          mkdir -p logs
+          echo "=== Daily test run at $(date -u '+%Y-%m-%d %H:%M:%S UTC') ===" > "logs/daily-$(date -u '+%Y-%m-%d').log"
+          echo "" >> "logs/daily-$(date -u '+%Y-%m-%d').log"
+          echo "Test completed successfully." >> "logs/daily-$(date -u '+%Y-%m-%d').log"
+
+      - name: Commit and push logs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/
+          if git diff --cached --quiet; then
+            echo "No log changes to commit"
+          else
+            git commit -m "auto: save push log $(date -u '+%Y-%m-%d')"
+            git push
+          fi
