@@ -1,6 +1,9 @@
 name: Daily Test
 
 on:
+  push:
+    paths:
+      - .github/workflows/daily.yml  # workflow 变更时自动触发，方便测试
   schedule:
     - cron: "0 0 * * *"   # UTC 00:00，每天运行
   workflow_dispatch:       # 手动触发
